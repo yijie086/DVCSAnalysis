@@ -1,8 +1,20 @@
 #include "EventCuts.h"
+#include <iostream>
 
-EventCuts::EventCuts(double threshold) : threshold(threshold) {}
+EventCuts::EventCuts() : validEvent(false) {}
+EventCuts::EventCuts(const EventCuts &cuts) {}
 
-bool EventCuts::passesCut(double value) const {
-    return value > threshold;
+EventCuts &EventCuts::operator=(const EventCuts &cuts) {
+  if (this == &cuts) {
+    return *this;
+  }
+  return *this;
 }
-
+EventCuts::~EventCuts() {}
+bool EventCuts::isSelected(Event *evt) {
+  bool pass = true;
+  /// here I will define the creteria for the selection of some particles
+  /// related to processes
+  // evt->SetSelectionStatus(pass);
+  return pass;
+}

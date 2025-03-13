@@ -1,26 +1,20 @@
-#ifndef EVENT_CUTS_H
-#define EVENT_CUTS_H
+#ifndef EVENTCUTS_H
+#define EVENTCUTS_H
+
+#include "Event.h"
+#include "hipo4/event.h"
 
 class EventCuts {
 public:
-    EventCuts(double threshold);
-    bool passesCut(double value) const;
-    void setDirToHIPO(string dataPath){
-        if(dataPath==""){
-            cout<<"\nNeed data file"<<endl;
-            cout<<"Analysis script terminated due to no valid path to Hipo files\n"<<endl;
-            exit(0);
-          }
-        mDataPath=dataPath;
-    };
-    string GetDataPath(){
-    return mDataPath;
-    }
+  EventCuts();
+  EventCuts(const EventCuts &cuts);
+  EventCuts &operator=(const EventCuts &cuts); // Constructor that takes a
+                                               // reference to DataReader
+  virtual ~EventCuts();
+  bool isSelected(Event *evt);
 
 private:
-    double threshold;
-    string mDataPath;
-
+  bool validEvent; // Flag to check if event retrieval was successful
 };
 
-#endif // EVENT_CUTS_H
+#endif // EVENT_H

@@ -24,8 +24,6 @@ void RunDVCSAnalysis(const std::string& inputFile) {
     return ;
     }
 
-
-
     AnalysisTaskManager taskManager;
     taskManager.AddTask(std::make_unique<DVCSAnalysis>()); // Use smart pointer to memory stuff
     std::cout << "adding the task in the DVCS analysis" << std::endl;

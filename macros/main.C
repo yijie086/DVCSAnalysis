@@ -1,6 +1,7 @@
 #include <iostream>
-#include "FirstAnalysis.h"
+#include <string>
 
+void RunDVCSAnalysis(const std::string& inputFile);
 int main(int argc, char* argv[]) {
     // Check if the correct number of arguments were passed
     if (argc != 2) {
@@ -9,6 +10,6 @@ int main(int argc, char* argv[]) {
     }
     // Pass the command-line argument to FirstDVCSAnalysis
     std::string inputFilePath = argv[1];  // argv[1] is the first argument passed to the program
-    FirstAnalysis(inputFilePath);
+    RunDVCSAnalysis(inputFilePath);
     return 0;
 }

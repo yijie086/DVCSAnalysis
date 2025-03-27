@@ -25,7 +25,29 @@ void RunDVCSAnalysis(const std::string& inputFile) {
     }
 
     AnalysisTaskManager taskManager;
-    taskManager.AddTask(std::make_unique<DVCSAnalysis>()); // Use smart pointer to memory stuff
+
+    TrackCuts *PhotonCuts =TrackCuts::PhotonCuts();
+    PhotonCuts->SetChargeCut(0);
+    PhotonCuts->SetPIDCut(22,3.0); // set pdg and the chisquared
+
+    TrackCuts *ElectronCuts =TrackCuts::ElectronCuts();
+    ElectronCuts->SetChargeCut(-1);
+    ElectronCuts->SetPIDCut(11,3.0); // set pdg and the chisquared
+
+    TrackCuts *ProtonCuts =TrackCuts::ProtonCuts();
+    ProtonCuts->SetChargeCut(1);
+    ProtonCuts->SetPIDCut(2212,3.0); // set pdg and the chisquared
+
+
+    /// here we call our task and set the track event cut settings
+    std::unique_ptr<DVCSAnalysis> DVCStask = std::make_unique<DVCSAnalysis>();
+
+    DVCStask->SetPhotonCuts(PhotonCuts);
+    DVCStask->SetElectronCuts(ElectronCuts);
+    DVCStask->SetProtonCuts(ProtonCuts);
+
+    /// pass the task to the task manager to do the laborious stuff
+    taskManager.AddTask(std::move(DVCStask)); // Use smart pointer to memory stuff
     std::cout << "adding the task in the DVCS analysis" << std::endl;
    
     std::cout << "Going to Event Processor" << std::endl;

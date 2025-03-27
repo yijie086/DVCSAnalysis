@@ -1,6 +1,7 @@
 #ifndef TRACKCUTS_H_
 #define TRACKCUTS_H_
 #include "Event.h"
+#include "TrackHists.h"
 
 class TrackCuts {
  public:
@@ -8,6 +9,10 @@ class TrackCuts {
   TrackCuts(const TrackCuts& cuts);
   TrackCuts &operator=(const TrackCuts& cuts);
   virtual ~TrackCuts();
+
+  static TrackCuts *PhotonCuts();
+  static TrackCuts *ElectronCuts();
+  static TrackCuts *ProtonCuts();
 
     void SetPtRangeCut(float minPt, float maxPt) {
         fpTmin = minPt;
@@ -17,33 +22,54 @@ class TrackCuts {
         fPmin = minP;
         fPmax = maxP;
     };
-    void SetVertexZCut(float minVz, float maxVz){
+    void SetVtxX(float minVx, float maxVx){
+        fVtXmin = minVx;
+        fVtXmax = maxVx;
+    };
+    void SetVtxY(float minVy, float maxVy){
+        fVtYmin = minVy;
+        fVtYmax = maxVy;
+    };
+    void SetVtxZ(float minVz, float maxVz){
         fVtZmin = minVz;
         fVtZmax = maxVz;
     };
-    void SetPIDCut(int pid){
+    void SetPIDCut(int pid, float chiSquaredVal ){
         fPID = pid;
+        fChiSquared = chiSquaredVal; // this is the chiSquared for the particle/// looking at DVCS Analysis note
+        fcutPID = kTRUE;
     };
     void SetChargeCut(int charge){
         fCharge = charge;
         };
 
     // Check if a track passes all cuts
-    bool isSelected(const std::shared_ptr<clas12::particle>& track);
-
-    bool TrackingCuts(const std::shared_ptr<clas12::particle> &track);
-    bool PIDCuts(const std::shared_ptr<clas12::particle> &track);
+    bool isSelected(const  clas12::region_part_ptr &Track);
+    bool TrackingCuts(const  clas12::region_part_ptr &track);
+    bool PIDCuts(const clas12::region_part_ptr &track);
+    void BookQA(const clas12:: region_part_ptr &Track);
 
 private:
+    bool fMinimalBooking;               
+    bool  fPID;
+    bool  fcutPID;
+    int   fCharge;
     float fPmin;
     float fPmax;
     float fpTmin;
     float fpTmax;
     float fcutPt;
+    float fVtXmin;
+    float fVtXmax;
+    float fVtYmin;
+    float fVtYmax;
     float fVtZmin;
     float fVtZmax;
-    bool  fPID;
-    int fCharge;
+    float fChiSquared;
+
+    TrackHists *fHists;    
+
+    
 
     // Individual cut functions
     bool PassesMomentumCut(const std::shared_ptr<clas12::particle>& track) const;

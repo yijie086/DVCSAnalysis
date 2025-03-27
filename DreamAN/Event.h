@@ -3,6 +3,7 @@
 
 #include "hipo4/event.h"
 #include "clas12reader.h"
+#include "particle.h"
 
 class Event : public clas12::clas12reader {
 public:

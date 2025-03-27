@@ -51,11 +51,19 @@ link_directories("/u/scigroup/cvmfs/hallb/clas12/sw/almalinux9-gcc11/local/clas1
 add_executable(AnalysisFramework
     macros/main.C
     macros/RunDVCSAnalysis.C
+    
+    # main core methods and classes
     DreamAN/EventProcessor.cxx
+    DreamAN/AnalysisTaskManager.cxx
+    DreamAN/AnalysisTask.cxx
     DreamAN/Event.cxx
+    DreamAN/Tracks.cxx
     DreamAN/EventCuts.cxx
     DreamAN/TrackCuts.cxx
+    DreamAN/TrackHists.cxx
+
   
+    #analysis related classes
     DreamAN/DVCSAnalysis.cxx
 )
 

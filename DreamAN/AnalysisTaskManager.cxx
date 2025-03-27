@@ -8,14 +8,16 @@ void AnalysisTaskManager::UserCreateOutputObjects() {
     CreateOutputFile("analysis_output.root");
 
     // Create a tree for event data
-    CreateTree("analysis_output.root", "EventTree");
-    AddTreeBranch("EventTree", "Momentum", &momentum);
+    //CreateTree("analysis_output.root", "EventTree");
+    //AddTreeBranch("EventTree", "Momentum", &momentum);
 
     // Create a histogram list
-    CreateHistogramList("analysis_output.root", "HistList");
-    hMomentum = new TH1F("hMomentum", "Momentum Distribution", 100, 0, 10);
-    AddHistogram("HistList", hMomentum);
-
+    //CreateHistogramList("analysis_output.root", "HistList");
+    //hMomentum = new TH1F("hMomentum", "Momentum Distribution", 100, 0, 10);
+   // AddHistogram("HistList", hMomentum);
+   for (auto& task : tasks) {
+    task->UserCreateOutputObjects();
+   }
     std::cout << "Output objects created!" << std::endl;
 }
 

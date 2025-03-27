@@ -14,13 +14,11 @@ class TrackCuts {
   static TrackCuts *ElectronCuts();
   static TrackCuts *ProtonCuts();
 
-    void SetPtRangeCut(float minPt, float maxPt) {
-        fpTmin = minPt;
-        fpTmax = maxPt;
-    };
+ 
     void SetMomentumCut(float minP, float maxP){
         fPmin = minP;
         fPmax = maxP;
+        fcutP = true;
     };
     void SetVtxX(float minVx, float maxVx){
         fVtXmin = minVx;
@@ -34,8 +32,8 @@ class TrackCuts {
         fVtZmin = minVz;
         fVtZmax = maxVz;
     };
-    void SetPIDCut(int pid, float chiSquaredVal ){
-        fPID = pid;
+    void SetPIDCut(int pid = -999, float chiSquaredVal =-999){
+        fPdg = pid;
         fChiSquared = chiSquaredVal; // this is the chiSquared for the particle/// looking at DVCS Analysis note
         fcutPID = kTRUE;
     };
@@ -51,14 +49,12 @@ class TrackCuts {
 
 private:
     bool fMinimalBooking;               
-    bool  fPID;
+    int  fPdg;
     bool  fcutPID;
     int   fCharge;
     float fPmin;
     float fPmax;
-    float fpTmin;
-    float fpTmax;
-    float fcutPt;
+    float fcutP;
     float fVtXmin;
     float fVtXmax;
     float fVtYmin;

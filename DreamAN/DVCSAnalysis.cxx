@@ -4,6 +4,7 @@ DVCSAnalysis::DVCSAnalysis()
     : fisLightWeight(false), 
     fIsMC(false), 
     fEvent(nullptr),
+    fTrack(nullptr),
     fEventCuts(nullptr),
     fTrackCutsPhoton(nullptr),
     fTrackCutsElectron(nullptr),
@@ -14,6 +15,7 @@ DVCSAnalysis::DVCSAnalysis()
 DVCSAnalysis::DVCSAnalysis( bool isMC)
     : fisLightWeight(false), fIsMC(isMC),
       fEvent(nullptr),
+      fTrack(nullptr),
       fEventCuts(nullptr),    
       fTrackCutsPhoton(nullptr),
       fTrackCutsElectron(nullptr),
@@ -21,6 +23,7 @@ DVCSAnalysis::DVCSAnalysis( bool isMC)
 
 DVCSAnalysis::~DVCSAnalysis() { // Destructor (clean up if necessary)
   delete fEvent;
+  delete fTrack;
   delete fTrackCutsPhoton;
   delete fTrackCutsElectron;
   delete fTrackCutsProton;
@@ -44,7 +47,9 @@ void DVCSAnalysis::UserCreateOutputObjects() {
   } else {
       std::cerr << "Error: Task manager is not set!" << std::endl;
   }
+  
   }
+  fTrack = new Tracks();
 }
 
 void DVCSAnalysis::UserExec(Event &event) {
@@ -54,7 +59,6 @@ void DVCSAnalysis::UserExec(Event &event) {
     for (const auto &particle : event.getDetParticles()) {
       
       fTrack->SetTrack(particle); // is where we set tracks and get possible track properties;
-
       // here we can ask if the particle is of our interest based on the track cuts we have defined
       if (fTrackCutsPhoton->isSelected(particle)) {
         std::cout << "Its a photon" << std::endl;

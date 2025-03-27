@@ -55,20 +55,19 @@
    fCharge.clear();
  }
 
- 
- void Tracks::SetTrack(region_particle *track) {
-   this->Reset();
-   fParticle = track;
-   // we may need to check if the track isnt available at all? what happens in that case?
-   fIsReset = false;
-   if (fParticle) {
-     //this->SetIDTracks(fParticle->GetID());
-     this->SetTrackingInformation();
-     this->SetEvtNumber(-999); /// we need to get a way to store event numbers
-   } else {
-     this->fIsSet = false;
-   }
-  }
+
+  void Tracks::SetTrack(region_particle *track) {
+    this->Reset();
+    fParticle = track;
+    if (!fParticle) {
+        std::cerr << "Error: Invalid track pointer!" << std::endl;
+        fIsSet = false;
+        return;
+    }
+    fIsReset = false;
+    this->SetTrackingInformation();
+    this->SetEvtNumber(-999);  // Set a default event number (can be updated later)
+}
 
  /// here we can set all the kinemtics of the particles
 void Tracks::SetTrackingInformation() {
@@ -86,17 +85,20 @@ void Tracks::SetTrackingInformation() {
  
 
 
- void Tracks::Reset() {
-   if (!fIsReset) {
+void Tracks::Reset() {
+    if (!fIsReset) {
+        // Check if fParticle is nullptr before using it
+        if (fParticle == nullptr) {
+            std::cerr << "Error: fParticle is nullptr, cannot reset track!" << std::endl;
+            return;  // Prevent crash if fParticle is not set
+        }
 
-     fChi2 = 0;
-     GetMomentum(0).SetXYZ(0, 0, 0);
-     fIDTracks.clear();
-     fCharge.clear();
-     //we don't want to reset the fPDGCode
-     //we don't want to reset isMC
-     fUse = false;
-     fIsSet = true;
-     fIsReset = true;
-   }
- }
+        fChi2 = 0;
+        GetMomentum(0).SetXYZ(0, 0, 0);
+       // fIDTracks.clear();
+       // fCharge.clear();
+        fUse = false;
+        fIsSet = true;
+        fIsReset = true;
+    }
+}

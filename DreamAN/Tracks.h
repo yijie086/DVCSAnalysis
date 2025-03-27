@@ -122,9 +122,12 @@
      return "Tracks";
    }
    ;
+ 
+
+
+  private:
   void Reset();
   void SetTrackingInformation() ;
-  protected:
    bool fIsReset;
    std::vector<TVector3> fP;
    std::vector<int> fIDTracks;

@@ -62,10 +62,10 @@
    }
    ;
    void SetCharge(int charge) {
-     fCharge.push_back(charge);
+     fCharge=charge;
    }
    ;
-   std::vector<int> GetCharge() const {
+   int GetCharge() const {
      return fCharge;
    }
    ;
@@ -107,8 +107,8 @@
      fUse = use;
    }
    ;
-   void SetZVtx (float Vz) { fZVtx = Vz; };
-   float GetZVtx ()  { return fZVtx; };
+   void SetVz(float Vz) { fZVtx = Vz; };
+   float GetVz()  const { return fZVtx; };
 
    
    bool UseParticle() const {
@@ -116,7 +116,7 @@
    }
    ;
 
-   float GetBeta(region_particle*track) const;
+   float GetBeta() const;
 
    TString ClassName() {
      return "Tracks";
@@ -131,15 +131,18 @@
    bool fIsReset;
    std::vector<TVector3> fP;
    std::vector<int> fIDTracks;
-   std::vector<int> fCharge;
+
+   // Ask Richard for the particle object if this makes any good or there are other type of object one can use. to me it looks like there aren't better options from the clas12reader method.
    region_particle * fParticle;
    float fInvMass;
    float fZVtx;
    float fChi2;
  // pdg code as set by the track cuts, used for invariant mass calculation/mc matching in v0s
    int fPDGCode;
+
  // pdg code as obtained from the MC for this particle
    int fID;
+   int fCharge;
    int fEvtNumber;
    bool fUse;    //passes cuts
    bool fIsSet;  //has all the attributes set properly

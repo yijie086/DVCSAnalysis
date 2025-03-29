@@ -2,7 +2,7 @@
 // Default constructor
 TrackCuts::TrackCuts()
     : // fMCHists(nullptr),
-      fMinimalBooking(nullptr), fHists(nullptr), fPmin(0.0), fPmax(100.0),
+      fMinimalBooking(false), fHists(nullptr), fPmin(0.0), fPmax(100.0),
       fcutP(0), fVtXmin(-100.0), fVtXmax(100.0), fVtYmin(-100.0),
       fVtYmax(100.0), fVtZmin(-100.0), fVtZmax(100.0), fCharge(0),
       fChiSquared(0), fcutPID(0) {}
@@ -10,8 +10,9 @@ TrackCuts::TrackCuts()
 TrackCuts::TrackCuts(const TrackCuts &cuts)
     : // fMCHists(cuts.fMCHists),
       fMinimalBooking(cuts.fMinimalBooking), fHists(cuts.fHists),
-      fPmin(cuts.fPmin),fPmax(cuts.fPmax), fcutP(cuts.fcutP), fcutPID(cuts.fcutPID),
-      fCharge(cuts.fCharge), fChiSquared(cuts.fChiSquared) {}
+      fPmin(cuts.fPmin), fPmax(cuts.fPmax), fcutP(cuts.fcutP),
+      fcutPID(cuts.fcutPID), fCharge(cuts.fCharge),
+      fChiSquared(cuts.fChiSquared) {}
 
 TrackCuts &TrackCuts::operator=(const TrackCuts &cuts) {
   if (this == &cuts) {
@@ -28,6 +29,7 @@ TrackCuts &TrackCuts::operator=(const TrackCuts &cuts) {
     this->fPdg = cuts.fPdg;
     this->fChiSquared = cuts.fChiSquared;
   }
+  return *this; 
 }
 
 TrackCuts::~TrackCuts() {
@@ -42,13 +44,13 @@ TrackCuts::~TrackCuts() {
   }
 }
 
-bool TrackCuts::isSelected(const clas12::region_part_ptr &track) {
+bool TrackCuts::isSelected(Tracks *track) {
   if (!track) {
     std::cerr << "No Input Track received" << std::endl;
   }
   bool pass = true;
-  if (pass) {
-    if (!TrackingCuts(track)) {
+  if (pass && fcutP) {
+    if (!PassesMomentumCut(track)) {
       pass = false;
     }
   }
@@ -58,17 +60,17 @@ bool TrackCuts::isSelected(const clas12::region_part_ptr &track) {
     } else {
       // we may wanna have some histograms related to cuts here
     }
-    // Track->SetUse(pass); This is actaully important since we need to set the
-    // tract
-  }  
-  if (!(pass && (track->getPid() == fPdg))) {
-     pass = false;
+    track->SetUse(pass); //This is actaully important since we need to set the
+
+    // check for PDG code
+    if (!(pass && PassesPIDCut(track))) {
+      pass = false;
+    }
   }
-  //std::cout<<"pdg codes = "<<track->getPid()<<" while fPdg "<< fPdg <<std::endl;
   return pass;
 }
 
-bool TrackCuts::TrackingCuts(const clas12::region_part_ptr &track) {
+bool TrackCuts::TrackingCuts(Tracks *track) {
   bool pass = true;
   // detector track related cuts
   bool DetStatus = true; // should be accessed from the particle banks
@@ -76,18 +78,10 @@ bool TrackCuts::TrackingCuts(const clas12::region_part_ptr &track) {
     pass = false;
   } else {
   }
-  if (pass && fcutP) {
-
-    if (track->getP() < fPmin || track->getP() > fPmax) {
-      pass = false;
-    } else {
-      // do something;
-    }
-  }
   return pass;
 }
 
-bool TrackCuts::PIDCuts(const clas12::region_part_ptr &track) {
+bool TrackCuts::PIDCuts(Tracks *track) {
   // We would need some detector response
   bool pass = true;
 
@@ -111,7 +105,7 @@ bool TrackCuts::PIDCuts(const clas12::region_part_ptr &track) {
 TrackCuts *TrackCuts::PhotonCuts() {
   TrackCuts *trackCuts = new TrackCuts();
   trackCuts->SetChargeCut(0);
-  trackCuts-> SetMomentumCut(0.0, 10.0); //yijie please retune these
+  trackCuts->SetMomentumCut(0.0, 10.0); // yijie please retune these
   trackCuts->SetVtxX(-10, 10);
   trackCuts->SetVtxY(-10, 10);
   trackCuts->SetVtxZ(-10, 10);
@@ -123,7 +117,7 @@ TrackCuts *TrackCuts::PhotonCuts() {
 TrackCuts *TrackCuts::ElectronCuts() {
   TrackCuts *trackCuts = new TrackCuts();
   trackCuts->SetChargeCut(1);
-  trackCuts-> SetMomentumCut(0.0, 10.0); //yijie please retune these
+  trackCuts->SetMomentumCut(0.0, 10.0); // yijie please retune these
   trackCuts->SetVtxX(-10, 10);
   trackCuts->SetVtxY(-10, 10);
   trackCuts->SetVtxZ(-10, 10);
@@ -135,7 +129,7 @@ TrackCuts *TrackCuts::ElectronCuts() {
 TrackCuts *TrackCuts::ProtonCuts() {
   TrackCuts *trackCuts = new TrackCuts();
   trackCuts->SetChargeCut(1);
-  trackCuts-> SetMomentumCut(0.0, 10.0); //yijie please retune these
+  trackCuts->SetMomentumCut(0.0, 10.0); // yijie please retune these
   trackCuts->SetVtxX(-10, 10);
   trackCuts->SetVtxY(-10, 10);
   trackCuts->SetVtxZ(-10, 10);
@@ -144,31 +138,28 @@ TrackCuts *TrackCuts::ProtonCuts() {
 }
 
 //// booking histograms here
-void TrackCuts::BookQA(const clas12::region_part_ptr &Track) {
+void TrackCuts::BookQA(Tracks *Track) {
   if (!fMinimalBooking) {
-
     // it might be usefull for us to create a class where we can store these
     // variable already, thinking about the resuing these class after skimming
     // and not sure if this would be possible we should be able to figure out
 
-    float Px = Track->getPx();
-    float Py = Track->getPy();
-    float Pz = Track->getPz();
+    float Px = Track->GetPx();
+    float Py = Track->GetPy();
+    float Pz = Track->GetPz();
 
     /// we might need to store more variable separately but it seems there are
     /// already some defined in the clas12reader
 
-    float p = Track->getP();
-    float Vz =
-        Track->getVt(); // not sure if its the correct one, check required
-    float beta =
-        Track->getBeta(); // not sure if its the correct one, check required
+    float p = Track->GetP();
+    float Vz = Track->GetVz(); // not sure if its the correct one, check required
+    float beta =Track->GetBeta(); // not sure if its the correct one, check required
 
     float phi = 0; // not sure if phi is required but lets keep might need for
                    // the fiducial cuts, need to find out how to compute
 
     for (int i = 0; i < 2; ++i) {
-      // if (i == 0 || (i == 1 && Track->UseParticle())) {
+       if (i == 0 || (i == 1 && Track->UseParticle())) {
 
       fHists->FillphiCut(i, phi);
       fHists->FillpCut(i, p);
@@ -176,37 +167,34 @@ void TrackCuts::BookQA(const clas12::region_part_ptr &Track) {
       // fHists->FillBeta(i, p, beta);
       //  we may wanna include more histograms here
 
-      // }
+       }
     }
   } else {
-    // if (Track->UseParticle())
-    fHists->FillpCut(1, Track->getP());
-    // }
+     if (Track->UseParticle()){
+    fHists->FillpCut(1, Track->GetP());
+     }
     return;
   }
 }
 
-// Momentum cut
-bool TrackCuts::PassesMomentumCut(
-    const std::shared_ptr<clas12::particle> &track) const {
-  float p = track->getP();
+// we need more such functions for the track cuts
+//  Momentum cut
+bool TrackCuts::PassesMomentumCut(Tracks *track) const {
+  float p = track->GetP();
   return (p >= fPmin && p <= fPmax);
 }
 
 // Vertex Z position cut
-bool TrackCuts::PassesVertexCut(
-    const std::shared_ptr<clas12::particle> &track) const {
-  return (track->getVz() >= fVtZmin && track->getVz() <= fVtZmax);
+bool TrackCuts::PassesVertexCut(Tracks *track) const {
+  return (track->GetVz() >= fVtZmin && track->GetVz() <= fVtZmax);
 }
 
 // PID cut
-bool TrackCuts::PassesPIDCut(
-    const std::shared_ptr<clas12::particle> &track) const {
-  return (track->getPid() == fPdg);
+bool TrackCuts::PassesPIDCut(Tracks *track) const {
+  return (track->GetPDGCode() == fPdg);
 }
 
 // Charge cut
-bool TrackCuts::PassesChargeCut(
-    const std::shared_ptr<clas12::particle> &track) const {
-  return (track->getCharge() == fCharge);
+bool TrackCuts::PassesChargeCut(Tracks *track) const {
+  return (track->GetCharge() == fCharge);
 }

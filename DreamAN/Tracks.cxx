@@ -52,7 +52,6 @@
  Tracks::~Tracks() {
    fP.clear();
    fIDTracks.clear();
-   fCharge.clear();
  }
 
 
@@ -76,13 +75,19 @@ void Tracks::SetTrackingInformation() {
    //this->SetCharge(fParticle->getParticle()->getCharge()); // somehow I did now see getter for the particle charge in region_particle class
    this->SetMomentum(0, fParticle->getPx(), fParticle->getPy(), fParticle->getPz());
    this->fChi2 = fParticle-> getChi2Pid();
+   this->fPDGCode = fParticle-> getPid();//PDG codes we need for the id check
+   this->fZVtx = fParticle-> getVt();//Vz for the particle
+   this ->fCharge = 0; // we need to get a function from the Clas12ROOT that provides charge of the particle
+
  }
 
-  float Tracks::GetBeta(region_particle*track) const {
+  float Tracks::GetBeta() const {
    static float beta = fParticle->getBeta(); //we need find method for beta
    return beta;
  }
- 
+
+
+;
 
 
 void Tracks::Reset() {
@@ -95,8 +100,8 @@ void Tracks::Reset() {
 
         fChi2 = 0;
         GetMomentum(0).SetXYZ(0, 0, 0);
-       // fIDTracks.clear();
-       // fCharge.clear();
+        fCharge = 0;
+        fZVtx = 0;
         fUse = false;
         fIsSet = true;
         fIsReset = true;

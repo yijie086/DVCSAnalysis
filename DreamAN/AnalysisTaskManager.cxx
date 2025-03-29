@@ -4,22 +4,16 @@
 void AnalysisTaskManager::UserCreateOutputObjects() {
     std::cout << "Initializing output objects..." << std::endl;
 
-    // Create ROOT output file
     CreateOutputFile("analysis_output.root");
+    CreateHistogramList("analysis_output.root", "DVCS_Histograms");
 
-    // Create a tree for event data
-    //CreateTree("analysis_output.root", "EventTree");
-    //AddTreeBranch("EventTree", "Momentum", &momentum);
+    for (auto& task : tasks) {
+        task->UserCreateOutputObjects();
+    }
 
-    // Create a histogram list
-    //CreateHistogramList("analysis_output.root", "HistList");
-    //hMomentum = new TH1F("hMomentum", "Momentum Distribution", 100, 0, 10);
-   // AddHistogram("HistList", hMomentum);
-   for (auto& task : tasks) {
-    task->UserCreateOutputObjects();
-   }
     std::cout << "Output objects created!" << std::endl;
 }
+
 
 void AnalysisTaskManager::CreateOutputFile(const std::string& name) {
     std::string filePath = outputDir + "/" + name;
@@ -39,10 +33,12 @@ void AnalysisTaskManager::CreateHistogramList(const std::string& fileName, const
     if (outputFiles.count(fileName)) {
         outputFiles[fileName]->cd();
         histLists[listName] = std::make_unique<TList>();
+        histLists[listName]->SetName(listName.c_str()); // Set TList name
     } else {
         std::cerr << "Error: Output file " << fileName << " not found!" << std::endl;
     }
 }
+
 
 void AnalysisTaskManager::AddHistogram(const std::string& listName, TH1F* hist) {
     if (histLists.count(listName)) {
@@ -90,12 +86,19 @@ void AnalysisTaskManager::ExecuteTasks(Event& event) {
 void AnalysisTaskManager::SaveOutput() {
     for (auto& filePair : outputFiles) {
         filePair.second->cd();
-        for (auto& treePair : trees) {
-            treePair.second->Write();
-        }
+        
+        // Write histograms grouped by their lists
         for (auto& listPair : histLists) {
-            listPair.second->Write();
+            TDirectory *dir = filePair.second->mkdir(listPair.first.c_str());
+            dir->cd();
+            listPair.second->Write(); 
         }
+
+        // Write trees
+        for (auto& treePair : trees) {
+            treePair.second->Write();  
+        }
+
         filePair.second->Close();
     }
     std::cout << "ROOT output saved!" << std::endl;

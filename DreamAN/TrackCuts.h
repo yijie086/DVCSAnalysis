@@ -1,6 +1,7 @@
 #ifndef TRACKCUTS_H_
 #define TRACKCUTS_H_
 #include "Event.h"
+#include "Tracks.h"
 #include "TrackHists.h"
 
 class TrackCuts {
@@ -41,11 +42,15 @@ class TrackCuts {
         fCharge = charge;
         };
 
+    void SetMinimalBook(bool book ){
+        fMinimalBooking = book;
+    }
+    
     // Check if a track passes all cuts
-    bool isSelected(const  clas12::region_part_ptr &Track);
-    bool TrackingCuts(const  clas12::region_part_ptr &track);
-    bool PIDCuts(const clas12::region_part_ptr &track);
-    void BookQA(const clas12:: region_part_ptr &Track);
+    bool isSelected(Tracks *track);
+    bool TrackingCuts(Tracks *track);
+    bool PIDCuts(Tracks *track);
+    void BookQA(Tracks *track);
 
 private:
     bool fMinimalBooking;               
@@ -68,10 +73,10 @@ private:
     
 
     // Individual cut functions
-    bool PassesMomentumCut(const std::shared_ptr<clas12::particle>& track) const;
-    bool PassesVertexCut(const std::shared_ptr<clas12::particle>& track) const;
-    bool PassesPIDCut(const std::shared_ptr<clas12::particle>& track) const;
-    bool PassesChargeCut(const std::shared_ptr<clas12::particle>& track) const;
+    bool PassesMomentumCut(Tracks* track) const;
+    bool PassesVertexCut(Tracks*track) const;
+    bool PassesPIDCut(Tracks* track) const;
+    bool PassesChargeCut(Tracks*track) const;
 };
 
 #endif // TRACKCUTS_H

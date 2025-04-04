@@ -104,5 +104,22 @@ target_link_libraries(AnalysisES
     hipo4
 )
 
+
+add_executable(MathDemo
+    macros/mainMathDEMO.C
+
+    # main core methods and classes
+    DreamAN/MathKinematicVariable.cxx
+)
+
+# Link against ROOT libraries, CLAS12ROOT libraries, and HIPO4
+target_link_libraries(MathDemo
+    ${ROOT_LIBS}
+    pthread
+    Clas12Root  # Link against the precompiled Clas12Root library
+    Clas12Banks
+    hipo4
+)
+
 # Debugging info (optional)
 message(STATUS "ROOT Libraries: ${ROOT_LIBS}")
